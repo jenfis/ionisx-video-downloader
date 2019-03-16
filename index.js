@@ -24,13 +24,15 @@ const sleep = function(ms) {
 }
 
 const retryNavigate = async (page, url, contextInfo) => {
-    await page.goto(url, {timeout: 10000})
+    await page.goto(url, {timeout: 100000})
         .catch(async () => {
-            await sleep(5000);
+            await sleep(50000);
             await page.goto('https://ionisx.com/dashboard');
+            await page.waitForNavigation(); // add temporisation
             await page.goto(url).catch(async (e2) => {
                 console.error(e2)
                 await page.screenshot({ path: sanitize(url) + '.png' });
+                await page.waitForNavigation(); // add temporisation
                 errors.push(`Unable to navigate to ${contextInfo} ${url}`)
                 throw new Error(`Unable to navigate to ${contextInfo} ${url}`)
             })
@@ -314,6 +316,7 @@ const launch = async () => {
     });
     await page.setViewport({ width: 1980, height: 1260 })
     await page.goto(url);
+    await page.waitForNavigation(); // add temporisation
     console.log(`Connecting on office 365`)
     await page.focus('#i0116');
     await page.type('#i0116' ,credentials.login); // your login here
